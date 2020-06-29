@@ -6,7 +6,6 @@ from functools import partial
 
 class Aplicacion():
     __ventana=None
-    __respuestaEj3=None
     __hora=None
     def __init__(self):
         self.__ventana = Tk()
@@ -18,8 +17,6 @@ class Aplicacion():
         self.__hora = StringVar()
         self.__hora.set(datetime.now().time())
         ttk.Label(mainframe, textvariable=self.__hora).grid(column=2, row=0, sticky=E)
-
-        self.__respuestaEj3 = StringVar()
 
         self.boton1=ttk.Button(mainframe, text='Actualizar', command=partial(self.ej3,mainframe))
         self.boton1.grid(column=0, row=0, sticky=W)
@@ -33,17 +30,21 @@ class Aplicacion():
         self.__hora.set(datetime.now().time())
         r = requests.get('https://www.dolarsi.com/api/api.php?type=valoresprincipales')
         x = r.json()
-        i=0
-        j=1
+        i=2
+        band = False
         for elemento in x:
             if ('casa' in elemento):
                 if ('compra' in elemento['casa']) & ('venta' in elemento['casa']) & ('nombre' in elemento['casa']):
                     if ('Dolar' in elemento['casa']['nombre']):
-                        cotizacion = ttk.Entry(mainframe, width=10)
-                        cotizacion.grid(padx=5, pady=5, row=j, column=i)
-                        cotizacion.insert(0, str(elemento['casa']['compra']))
-                        if i < 3:
-                            i += 1
-                        else:
-                            i = 0
-                            j += 1
+                        if not band:
+                            ttk.Label(mainframe, text="Compra").grid(column=1, row=1, sticky=E)
+                            ttk.Label(mainframe, text="Venta").grid(column=2, row=1, sticky=E)
+                            band = True
+                        ttk.Label(mainframe, text=str(elemento['casa']['nombre'])).grid(column=0, row=i, sticky=W)
+                        compra = ttk.Entry(mainframe, width=10)
+                        venta = ttk.Entry(mainframe, width=10)
+                        compra.grid(padx=5, pady=5, row=i, column=1)
+                        venta.grid(padx=5, pady=5, row=i, column=2)
+                        compra.insert(0, str(elemento['casa']['compra']))
+                        venta.insert(0, str(elemento['casa']['venta']))
+                        i += 1
